@@ -32,19 +32,20 @@ jobs:
 
       - name: Enviar correo con DebugMail
         env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
           sudo apt update
           sudo apt install -y msmtp
           echo "account default
-          host smtp.debugmail.io
+          host $SMTP_HOST
           port 25
           auth on
           user $SMTP_USER
           password $SMTP_PASS
-          from ci@academianovit.com
+          from test@localhost
           tls off" > ~/.msmtprc
           chmod 600 ~/.msmtprc
 
-          echo -e "Subject: ✅ Pipeline completado\n\nEl workflow GH-build-DEV se ejecutó correctamente." | msmtp equipo@academianovit.com
+          echo -e "Subject: ✅ Pipeline completado\n\nEl workflow GH-build-DEV se ejecutó correctamente." | msmtp maxi@NovitTp2.app.debugmail.io
