@@ -32,16 +32,19 @@ jobs:
 
       - name: Enviar correo con DebugMail
         env:
-          SMTP_HOST: smtp.debugmail.io
-          SMTP_PORT: 25
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
-          echo "Enviando email..."
-          echo -e "From: Notificador CI/CD <ci@academianovit.com>\nTo: equipo@academianovit.com\nSubject: ✅ Pipeline completado\n\nEl workflow GH-build-DEV se ejecutó correctamente." | \
-          curl --url "smtp://${SMTP_HOST}:${SMTP_PORT}" \
-            --ssl-reqd \
-            --mail-from "ci@academianovit.com" \
-            --mail-rcpt "equipo@academianovit.com" \
-            --upload-file - \
-            --user "${SMTP_USER}:${SMTP_PASS}" || true
+          sudo apt update
+          sudo apt install -y msmtp
+          echo "account default
+          host smtp.debugmail.io
+          port 25
+          auth on
+          user $SMTP_USER
+          password $SMTP_PASS
+          from ci@academianovit.com
+          tls off" > ~/.msmtprc
+          chmod 600 ~/.msmtprc
+
+          echo -e "Subject: ✅ Pipeline completado\n\nEl workflow GH-build-DEV se ejecutó correctamente." | msmtp equipo@academianovit.com
