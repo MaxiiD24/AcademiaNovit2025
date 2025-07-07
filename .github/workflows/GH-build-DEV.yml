@@ -1,0 +1,47 @@
+name: GH-build-DEV
+
+on:
+  push:
+    branches:
+      - development
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restaurar dependencias
+        run: dotnet restore
+
+      - name: Compilar proyecto
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Ejecutar tests
+        run: dotnet test --no-build --verbosity normal
+
+      - name: Enviar correo con DebugMail
+        env:
+          SMTP_HOST: smtp.debugmail.io
+          SMTP_PORT: 25
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        run: |
+          echo "Enviando email..."
+          echo -e "From: Notificador CI/CD <ci@academianovit.com>\nTo: equipo@academianovit.com\nSubject: ✅ Pipeline completado\n\nEl workflow GH-build-DEV se ejecutó correctamente." | \
+          curl --url "smtp://${SMTP_HOST}:${SMTP_PORT}" \
+            --ssl-reqd \
+            --mail-from "ci@academianovit.com" \
+            --mail-rcpt "equipo@academianovit.com" \
+            --upload-file - \
+            --user "${SMTP_USER}:${SMTP_PASS}" || true
