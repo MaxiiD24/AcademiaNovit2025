@@ -45,7 +45,9 @@ jobs:
           user $SMTP_USER
           password $SMTP_PASS
           from test@localhost
-          tls off" > ~/.msmtprc
+          tls on
+          tls_trust_file /etc/ssl/certs/ca-certificates.crt
+          " > ~/.msmtprc
           chmod 600 ~/.msmtprc
 
           echo -e "Subject: ✅ Pipeline completado\n\nEl workflow GH-build-DEV se ejecutó correctamente." | msmtp maxi@NovitTp2.app.debugmail.io
