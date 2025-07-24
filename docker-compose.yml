@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -16,29 +16,17 @@ services:
       - novit-network
 
   api:
-    build:
-      context: ./AcademiaNovit
-      dockerfile: Dockerfile
+    image: ghcr.io/maxiid24/academianovit2025-api:latest
     container_name: novit_api
     ports:
       - "8080:8080"
     depends_on:
       - postgres
-    restart: always  
     environment:
-      - ASPNETCORE_URLS=http://0.0.0.0:8080
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=datos;Username=postgres;Password=postgres
-
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=datos;Username=postgres;Password=postgres
     networks:
       - novit-network
-    command: >
-      sh -c "
-      until pg_isready -h postgres -p 5432; do
-        echo '🕒 Esperando a Postgres...';
-        sleep 2;
-      done;
-      echo '✅ Postgres está listo. Ejecutando API...';
-      dotnet AcademiaNovit.dll"
+    restart: always
 
 volumes:
   pgdata:
