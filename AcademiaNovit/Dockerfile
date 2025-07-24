@@ -1,22 +1,23 @@
-# Imagen base para build
+# Etapa de build
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Copiar y restaurar dependencias
-COPY *.csproj ./
+# Copiar solo el archivo .csproj
+COPY AcademiaNovit/*.csproj ./AcademiaNovit/
+WORKDIR /src/AcademiaNovit
 RUN dotnet restore
 
-# Copiar todo y compilar
-COPY . ./
-RUN dotnet publish -c Release -o out
+# Copiar el resto del código
+COPY AcademiaNovit/. ./
+RUN dotnet publish -c Release -o /app/publish
 
-# Imagen base para producción
+# Etapa de runtime
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/out .
+COPY --from=build /app/publish .
 
-# Puerto que expone la API
+# Puerto expuesto
 EXPOSE 8080
 
-# Comando para iniciar la aplicación
+# Iniciar la API
 ENTRYPOINT ["dotnet", "AcademiaNovit.dll"]
