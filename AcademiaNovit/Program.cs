@@ -36,7 +36,27 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+
+    var maxRetries = 10;
+    var delay = TimeSpan.FromSeconds(2);
+
+    for (int attempt = 1; attempt <= maxRetries; attempt++)
+    {
+        try
+        {
+            dbContext.Database.Migrate();
+            break;
+        }
+        catch (Npgsql.NpgsqlException ex)
+        {
+            Console.WriteLine($"❌ PostgreSQL no está listo (intento {attempt}): {ex.Message}");
+
+            if (attempt == maxRetries)
+                throw;
+
+            Thread.Sleep(delay);
+        }
+    }
 }
 
 app.MapOpenApi();

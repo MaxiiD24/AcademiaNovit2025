@@ -1,0 +1,33 @@
+name: GH-docker-registry-DEV
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Configurar Docker Login en GHCR
+        run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restaurar dependencias
+        run: dotnet restore ./AcademiaNovit/AcademiaNovit.csproj
+
+      - name: Publicar el proyecto
+        run: dotnet publish ./AcademiaNovit/AcademiaNovit.csproj -c Release -o ./publish
+
+      - name: Crear y pushear imagen a GHCR
+        run: |
+          docker build -t ghcr.io/maxiid24/academianovit2025-api:latest -f AcademiaNovit/Dockerfile .
+          docker push ghcr.io/maxiid24/academianovit2025-api:latest
