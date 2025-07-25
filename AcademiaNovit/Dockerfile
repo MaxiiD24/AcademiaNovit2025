@@ -4,11 +4,11 @@ WORKDIR /src
 
 # Copiar .csproj y restaurar dependencias
 COPY AcademiaNovit/AcademiaNovit.csproj ./AcademiaNovit/
-WORKDIR /AcademiaNovit
-RUN dotnet restore
+RUN dotnet restore AcademiaNovit/AcademiaNovit.csproj
 
 # Copiar el resto del código
-COPY AcademiaNovit/ . ./
+COPY AcademiaNovit/ . ./AcademiaNovit/
+WORKDIR /src/AcademiaNovit
 RUN dotnet publish -c Release -o /app/publish
 
 # Imagen para producción
