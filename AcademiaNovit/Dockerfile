@@ -3,11 +3,12 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copiar .csproj y restaurar dependencias
-COPY AcademiaNovit.csproj ./AcademiaNovit.csproj
+COPY AcademiaNovit/AcademiaNovit.csproj ./AcademiaNovit/
+WORKDIR /AcademiaNovit
 RUN dotnet restore
 
 # Copiar el resto del código
-COPY . ./
+COPY AcademiaNovit/ . ./
 RUN dotnet publish -c Release -o /app/publish
 
 # Imagen para producción
