@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  postgres_novit:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: usuario
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: datos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - novit-network
+
+  novit_api:
+    image: ghcr.io/maxiid24/academianovit2025-api:latest
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__Default: "Host=postgres_novit;Port=5432;Username=usuario;Password=password;Database=datos"
+    depends_on:
+      - postgres_novit
+    deploy:
+      replicas: 5
+      restart_policy:
+        condition: on-failure
+    networks:
+      - novit-network
+
+volumes:
+  postgres_data:
+
+networks:
+  novit-network:
+    driver: overlay

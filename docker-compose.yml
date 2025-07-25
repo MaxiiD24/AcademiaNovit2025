@@ -23,6 +23,7 @@ services:
     depends_on:
       - postgres
     environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:8080
       - ConnectionStrings__Default=Host=postgres;Port=5432;Database=datos;Username=postgres;Password=postgres
     networks:
       - novit-network
